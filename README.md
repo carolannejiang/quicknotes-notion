@@ -149,7 +149,7 @@ open ~/Notes
 
 | Symptom | Cause |
 |---|---|
-| "Saved locally only" notification | Check `~/.config/quicknote/error.log`. Usually the missing Connections step. |
+| "Saved locally only" notification | Check `~/.config/quicknote/error.log`. Usually the missing Connections step, or a property the request needs doesn't exist on the database (e.g. `Label`). |
 | Nothing happens on keypress | Open Karabiner's EventViewer, press the key, confirm the reported `key_code` matches the rule. |
 | Rule missing from Karabiner | Malformed JSON: `python3 -m json.tool ~/.config/karabiner/assets/complex_modifications/quicknote.json` |
 | Script hangs, no prompt returns | The dialog opened behind another window. `Ctrl+C` to escape. |
