@@ -72,7 +72,7 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
 | Key | Script | Behaviour |
 |-----|--------|-----------|
 | `F3` | `quicknote.sh` | Single-line dialog. Enter saves. |
-| `Shift+F3` | `quicknote-long.sh` | Opens TextEdit. Cmd+S, Cmd+Q to save. |
+| `Shift+F3` | `quicknote-long.sh` | Opens TextEdit. Cmd+S, Cmd+Q to save. Forces TextEdit's plain-text mode (app-wide). |
 | Right `⌘` tap | `quicknote.sh` | Still a normal modifier when held. |
 
 All three rules are independent — enable only what you want. F3 is Mission
@@ -158,7 +158,6 @@ open ~/Notes
 | Rule missing from Karabiner | Malformed JSON: `python3 -m json.tool ~/.config/karabiner/assets/complex_modifications/quicknote.json` |
 | Script hangs, no prompt returns | The dialog opened behind another window. `Ctrl+C` to escape. |
 | No dialog on first run | macOS automation permission prompt is pending; allow it, then run again. |
-| RTF markup in notes | TextEdit → Settings → Format → Plain text. |
 | Notion shows date but no time | Edit the `Captured` property and set a Time format. |
 
 ## Security

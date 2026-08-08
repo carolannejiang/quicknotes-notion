@@ -23,6 +23,10 @@ SCRATCH=$(mktemp -d)
 TMP="$SCRATCH/note.txt"
 : > "$TMP"
 
+# Force plain-text mode so the note can't fill with RTF markup. App-wide
+# default: new TextEdit documents elsewhere become plain text too.
+/usr/bin/defaults write com.apple.TextEdit RichText -bool false
+
 # -n forces a new instance, -W blocks until that instance quits
 /usr/bin/open -a TextEdit -n -W "$TMP"
 
