@@ -98,6 +98,31 @@ and the note is saved locally only.
 token, or a Notion outage can never lose a note. Failures produce a macOS
 notification and an entry in `error.log`; the note is already safe on disk.
 
+**Notes that fail to sync are queued and retried.** When the API call fails for
+a *transient* reason, the note's request body is appended to
+`~/.config/quicknote/queue.jsonl`. The next successful run flushes the backlog
+first — oldest note first, so capture order is preserved in Notion — then sends
+the current note. The flush stops at the first transient failure rather than
+retrying every queued note against a still-dead connection, leaving the
+remainder queued for later.
+
+*Transient* means the request is worth retrying: no connectivity (detected by
+curl's exit status, not by scanning the response — Notion echoes the note text
+back on success, so a note containing `curl:` must not be misread as a network
+error), or a `429`/`5xx` from Notion (rate limit or server hiccup). Everything
+else — a `4xx` **rejection** from a missing property, revoked token, or wrong
+database ID — won't succeed on retry, so it is *not* queued: it's saved locally,
+logged to `error.log`, and reported as "Notion rejected the note". That keeps
+one permanently bad note from wedging at the head of the queue and blocking
+every note behind it. The local Markdown file is always the source of truth; the
+queue only exists to eventually mirror transiently-failed notes into Notion.
+
+**The queue is safe across overlapping runs.** A capture can fire while a slow
+offline flush is still draining. Each flush *claims* the backlog with a single
+atomic rename, so exactly one run ever processes a given set of notes — no
+double-sends — and unsent notes and concurrent captures are only ever appended
+back, never written over, so nothing is lost.
+
 **The API version is pinned to `2022-06-28`.** Versions from `2025-09-03`
 onward restructured how a page's parent is specified, moving from a plain
 `database_id` to data sources. Pinning keeps the request body stable. Upgrading
@@ -149,7 +174,8 @@ open ~/Notes
 
 | Symptom | Cause |
 |---|---|
-| "Saved locally only" notification | Check `~/.config/quicknote/error.log`. Usually the missing Connections step, or a property the request needs doesn't exist on the database (e.g. `Label`). |
+| "Saved locally + queued — will retry Notion" | A transient failure (no connectivity, or a Notion `429`/`5xx`); the note is queued in `~/.config/quicknote/queue.jsonl` and retried on the next successful run. |
+| "Saved locally only — Notion rejected the note" | Notion refused the request (not queued). Check `~/.config/quicknote/error.log`. Usually the missing Connections step, a wrong database ID, or a property the request needs that doesn't exist on the database (e.g. `Label`). |
 | Nothing happens on keypress | Open Karabiner's EventViewer, press the key, confirm the reported `key_code` matches the rule. |
 | Rule missing from Karabiner | Malformed JSON: `python3 -m json.tool ~/.config/karabiner/assets/complex_modifications/quicknote.json` |
 | Script hangs, no prompt returns | The dialog opened behind another window. `Ctrl+C` to escape. |
