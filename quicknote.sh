@@ -29,9 +29,20 @@ STATUS=$?
 # Saved but empty
 [ -z "$TEXT" ] && exit 0
 
+# A leading "todo" ("todo buy milk", "Todo: buy milk") checks the Todo
+# property on the Notion row and is stripped from the note text.
+TODO=false
+if [[ $TEXT =~ ^[Tt][Oo][Dd][Oo]:?[[:space:]]+(.*)$ ]]; then
+  TODO=true
+  TEXT=${BASH_REMATCH[1]}
+  [ -z "$TEXT" ] && exit 0
+fi
+
 # --- Local copy first -------------------------------------------------------
 mkdir -p "$(dirname "$NOTE_FILE")"
-printf -- '- [%s] %s\n' "$(date '+%Y-%m-%d %H:%M')" "$TEXT" >> "$NOTE_FILE"
+MARKER=""
+[ "$TODO" = true ] && MARKER="TODO: "
+printf -- '- [%s] %s%s\n' "$(date '+%Y-%m-%d %H:%M')" "$MARKER" "$TEXT" >> "$NOTE_FILE"
 
 # --- Notion -----------------------------------------------------------------
 # Minimal JSON escaping. A single-line dialog cannot produce newlines or
@@ -39,11 +50,14 @@ printf -- '- [%s] %s\n' "$(date '+%Y-%m-%d %H:%M')" "$TEXT" >> "$NOTE_FILE"
 ESC=${TEXT//\\/\\\\}
 ESC=${ESC//\"/\\\"}
 
+PROPS="\"Note\":{\"rich_text\":[{\"text\":{\"content\":\"$ESC\"}}]}"
+[ "$TODO" = true ] && PROPS="$PROPS,\"Todo\":{\"checkbox\":true}"
+
 RESPONSE=$(/usr/bin/curl -sS -X POST https://api.notion.com/v1/pages \
   -H "Authorization: Bearer $NOTION_TOKEN" \
   -H "Notion-Version: 2022-06-28" \
   -H "Content-Type: application/json" \
-  -d "{\"parent\":{\"database_id\":\"$NOTION_DB\"},\"properties\":{\"Note\":{\"rich_text\":[{\"text\":{\"content\":\"$ESC\"}}]}}}" 2>&1)
+  -d "{\"parent\":{\"database_id\":\"$NOTION_DB\"},\"properties\":{$PROPS}}" 2>&1)
 
 case "$RESPONSE" in
   *'"object":"error"'*|*curl:*)

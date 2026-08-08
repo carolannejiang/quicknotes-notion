@@ -52,6 +52,7 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
    | `Note`     | Text         | Where the note text goes                 |
    | `Captured` | Created time | Auto-stamped; the script sends no date   |
    | `Processed`| Checkbox     | Optional, for triage                     |
+   | `Todo`     | Checkbox     | Checked when a note starts with `todo`   |
 
 3. **Connect the integration to the database.** Open it → `⋯` → Connections →
    Connect to → select your integration. **This step is the most common point
@@ -76,6 +77,20 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
 
 All three rules are independent — enable only what you want. F3 is Mission
 Control by default; that remains reachable via `Ctrl+↑` or a three-finger swipe.
+
+### Todo prefix
+
+Start a single-line note with `todo` (case-insensitive, optional colon) to
+check the `Todo` checkbox on the Notion row. The prefix is stripped from the
+note text; the local file line is marked `TODO:` instead.
+
+```
+todo buy milk    →  Note: "buy milk", Todo: checked
+Todo: call Sam   →  Note: "call Sam", Todo: checked
+```
+
+Requires the `Todo` checkbox property on the database — without it, Notion
+rejects the request and the note is saved locally only.
 
 ## Design decisions
 
