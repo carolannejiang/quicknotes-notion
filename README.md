@@ -80,9 +80,10 @@ Control by default; that remains reachable via `Ctrl+↑` or a three-finger swip
 
 ### Todo prefix
 
-Start a single-line note with `todo` (case-insensitive, optional colon) to
-check the `Todo` checkbox on the Notion row. The prefix is stripped from the
-note text; the local file line is marked `TODO:` instead.
+Start a note with `todo` (case-insensitive, optional colon) to check the
+`Todo` checkbox on the Notion row. In the multi-line flow the prefix goes on
+the first non-blank line. The prefix is stripped from the note text; the local
+file line is marked `TODO:` instead.
 
 ```
 todo buy milk    →  Note: "buy milk", Todo: checked

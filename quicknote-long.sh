@@ -33,10 +33,20 @@ rm -rf "$SCRATCH"
 SUMMARY=$(printf '%s' "$CONTENT" | sed -n '/[^[:space:]]/{p;q;}')
 BODY=$(printf '%s' "$CONTENT" | sed '1,/[^[:space:]]/d')
 
+# A leading "todo" on the first line ("todo buy milk", "Todo: buy milk")
+# checks the Todo property on the Notion row and is stripped from the summary.
+TODO=false
+if [[ $SUMMARY =~ ^[Tt][Oo][Dd][Oo]:?[[:space:]]+(.*)$ ]]; then
+  TODO=true
+  SUMMARY=${BASH_REMATCH[1]}
+fi
+
 # --- Local copy first -------------------------------------------------------
 mkdir -p "$(dirname "$NOTE_FILE")"
+MARKER=""
+[ "$TODO" = true ] && MARKER="TODO: "
 {
-  printf -- '- [%s] %s\n' "$(date '+%Y-%m-%d %H:%M')" "$SUMMARY"
+  printf -- '- [%s] %s%s\n' "$(date '+%Y-%m-%d %H:%M')" "$MARKER" "$SUMMARY"
   [ -n "$BODY" ] && printf '%s\n' "$BODY" | sed 's/^/  /'
 } >> "$NOTE_FILE"
 
@@ -61,11 +71,14 @@ if [ -n "$BODY" ]; then
   BLOCKS=${BLOCKS%,}
 fi
 
+PROPS="\"Note\":{\"rich_text\":[{\"text\":{\"content\":\"$(esc "$SUMMARY")\"}}]}"
+[ "$TODO" = true ] && PROPS="$PROPS,\"Todo\":{\"checkbox\":true}"
+
 RESPONSE=$(/usr/bin/curl -sS -X POST https://api.notion.com/v1/pages \
   -H "Authorization: Bearer $NOTION_TOKEN" \
   -H "Notion-Version: 2022-06-28" \
   -H "Content-Type: application/json" \
-  -d "{\"parent\":{\"database_id\":\"$NOTION_DB\"},\"properties\":{\"Note\":{\"rich_text\":[{\"text\":{\"content\":\"$(esc "$SUMMARY")\"}}]}},\"children\":[$BLOCKS]}" 2>&1)
+  -d "{\"parent\":{\"database_id\":\"$NOTION_DB\"},\"properties\":{$PROPS},\"children\":[$BLOCKS]}" 2>&1)
 
 case "$RESPONSE" in
   *'"object":"error"'*|*curl:*)
