@@ -1,0 +1,44 @@
+{
+  "title": "Quick note",
+  "rules": [
+    {
+      "description": "Shift+F3 - long note (multi-line)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "f3",
+            "modifiers": { "mandatory": ["shift"] }
+          },
+          "to": [{ "shell_command": "__BIN__/quicknote-long.sh" }]
+        }
+      ]
+    },
+    {
+      "description": "F3 - quick note (single line)",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": { "key_code": "f3" },
+          "to": [{ "shell_command": "__BIN__/quicknote.sh" }]
+        }
+      ]
+    },
+    {
+      "description": "Tap right command alone - quick note",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "right_command",
+            "modifiers": { "optional": ["any"] }
+          },
+          "to": [{ "key_code": "right_command", "lazy": true }],
+          "to_if_alone": [
+            { "shell_command": "__BIN__/quicknote.sh" }
+          ]
+        }
+      ]
+    }
+  ]
+}
