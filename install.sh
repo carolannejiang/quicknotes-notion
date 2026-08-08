@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# install.sh — copies scripts into ~/bin, generates the Karabiner rule with
+# install.sh — copies the script into ~/bin, generates the Karabiner rule with
 # absolute paths, and scaffolds the config file.
 #
 # Karabiner does not expand ~ and runs shell commands with a minimal PATH,
@@ -15,9 +15,8 @@ SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 mkdir -p "$BIN" "$CONFIG_DIR" "$KARABINER_DIR"
 
-install -m 755 "$SRC/quicknote.sh"      "$BIN/quicknote.sh"
-install -m 755 "$SRC/quicknote-long.sh" "$BIN/quicknote-long.sh"
-echo "Installed scripts to $BIN"
+install -m 755 "$SRC/quicknote.sh" "$BIN/quicknote.sh"
+echo "Installed script to $BIN"
 
 sed "s|__BIN__|$BIN|g" \
   "$SRC/karabiner/quicknote.json.template" \

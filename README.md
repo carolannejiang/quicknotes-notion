@@ -32,7 +32,7 @@ cd quicknote
 ./install.sh
 ```
 
-The installer copies both scripts to `~/bin`, generates the Karabiner rule with
+The installer copies the script to `~/bin`, generates the Karabiner rule with
 absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
 `600`.
 
@@ -72,18 +72,16 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
 | Key | Script | Behaviour |
 |-----|--------|-----------|
 | `F3` | `quicknote.sh` | Single-line dialog. Enter saves. |
-| `Shift+F3` | `quicknote-long.sh` | Opens TextEdit. Cmd+S, Cmd+Q to save. Forces TextEdit's plain-text mode (app-wide). |
 | Right `⌘` tap | `quicknote.sh` | Still a normal modifier when held. |
 
-All three rules are independent — enable only what you want. F3 is Mission
+Both rules are independent — enable only what you want. F3 is Mission
 Control by default; that remains reachable via `Ctrl+↑` or a three-finger swipe.
 
 ### Todo prefix
 
 Start a note with `todo` (case-insensitive, optional colon) to check the
-`Todo` checkbox on the Notion row. In the multi-line flow the prefix goes on
-the first non-blank line. The prefix is stripped from the note text; the local
-file line is marked `TODO:` instead.
+`Todo` checkbox on the Notion row. The prefix is stripped from the note text;
+the local file line is marked `TODO:` instead.
 
 ```
 todo buy milk    →  Note: "buy milk", Todo: checked
@@ -115,8 +113,7 @@ one title property and won't let you hide it in a table view, so expect a thin
 "Untitled" gutter column — drag it narrow.
 
 **Single-line dialog by design.** Enter saves rather than inserting a newline.
-That's what makes capture fast. Wanting paragraphs is the signal to use
-`Shift+F3` instead.
+That's what makes capture fast.
 
 **Absolute paths everywhere.** Karabiner runs shell commands with a minimal
 `PATH` and does not expand `~`, which is why `install.sh` substitutes them
@@ -124,13 +121,11 @@ rather than shipping a ready-made JSON.
 
 **JSON escaping is done inline, not with `jq`.** Keeps the dependency list at
 zero. A single-line dialog can't produce newlines or control characters, so
-backslash and double-quote are the only cases that matter. The multi-line
-script additionally handles tabs and sends body text as page blocks, which
-sidesteps the 2000-character ceiling on a `rich_text` property.
+backslash and double-quote are the only cases that matter.
 
 ## Configuration
 
-Both scripts honour two environment variables:
+The script honours two environment variables:
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
