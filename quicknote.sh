@@ -29,8 +29,8 @@ STATUS=$?
 # Saved but empty
 [ -z "$TEXT" ] && exit 0
 
-# A leading "todo" ("todo buy milk", "Todo: buy milk") checks the Todo
-# property on the Notion row and is stripped from the note text.
+# A leading "todo" ("todo buy milk", "Todo: buy milk") sets the Label
+# property to Todo on the Notion row and is stripped from the note text.
 TODO=false
 if [[ $TEXT =~ ^[Tt][Oo][Dd][Oo]:?[[:space:]]+(.*)$ ]]; then
   TODO=true
@@ -51,7 +51,7 @@ ESC=${TEXT//\\/\\\\}
 ESC=${ESC//\"/\\\"}
 
 PROPS="\"Note\":{\"rich_text\":[{\"text\":{\"content\":\"$ESC\"}}]}"
-[ "$TODO" = true ] && PROPS="$PROPS,\"Todo\":{\"checkbox\":true}"
+[ "$TODO" = true ] && PROPS="$PROPS,\"Label\":{\"select\":{\"name\":\"Todo\"}}"
 
 RESPONSE=$(/usr/bin/curl -sS -X POST https://api.notion.com/v1/pages \
   -H "Authorization: Bearer $NOTION_TOKEN" \
