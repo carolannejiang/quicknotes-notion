@@ -77,6 +77,39 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
 Both rules are independent — enable only what you want. F3 is Mission
 Control by default; that remains reachable via `Ctrl+↑` or a three-finger swipe.
 
+### Using a different hotkey app
+
+Karabiner is only the trigger — nothing in the tool depends on it. The script is
+self-contained, so any app that can bind a hotkey to a shell command can launch
+it. Skip the Karabiner rule and point your app at the installed script:
+
+```
+~/bin/quicknote.sh
+```
+
+Some launchers don't expand `~`; use the absolute path (`/Users/<you>/bin/quicknote.sh`)
+if so.
+
+| App | How |
+|-----|-----|
+| **Shortcuts** (built-in) | New shortcut → *Run Shell Script* → the path → assign a keyboard shortcut |
+| **Automator** (built-in) | Quick Action → *Run Shell Script* → then System Settings → Keyboard → Shortcuts → Services |
+| **Raycast** | Script Command, or a hotkey that runs the script |
+| **Alfred** (Powerpack) | Workflow → Hotkey trigger → *Run Script* |
+| **Hammerspoon** | `hs.hotkey.bind(mods, key, function() hs.execute("~/bin/quicknote.sh") end)` |
+| **Keyboard Maestro / BetterTouchTool / skhd** | Bind a hotkey → *Execute Shell Script* → the path |
+
+Two things to know:
+
+- **Permissions.** The dialog is shown via `osascript`/System Events, so the app
+  that triggers it needs macOS Accessibility/Automation permission (System
+  Settings → Privacy & Security) — the same requirement Karabiner has. Expect a
+  one-time approval prompt on first run.
+- **The Right `⌘` tap binding is Karabiner-specific.** Tapping a modifier key
+  while keeping it a normal modifier when held is a Karabiner trick most simple
+  hotkey apps can't reproduce. A regular key combo (like `F3` or `⌥Space`) works
+  anywhere and covers the main use case.
+
 ### Todo prefix
 
 Start a note with `todo` (case-insensitive, optional colon) to tag the Notion
