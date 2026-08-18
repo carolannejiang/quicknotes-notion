@@ -52,7 +52,7 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
    | `Note`     | Text         | Where the note text goes                 |
    | `Captured` | Created time | Auto-stamped; the script sends no date   |
    | `Processed`| Checkbox     | Optional, for triage                     |
-   | `Label`    | Select       | Gets a `Todo` tag when a note starts with `todo` |
+   | `Label`    | Select       | Gets a `Todo`/`Link` tag when a note starts with `todo`/`link` |
 
 3. **Connect the integration to the database.** Open it → `⋯` → Connections →
    Connect to → select your integration. **This step is the most common point
@@ -71,8 +71,13 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
 
 | Key | Script | Behaviour |
 |-----|--------|-----------|
-| `F3` | `quicknote.sh` | Single-line dialog. Enter saves. |
+| `F3` | `quicknote.sh` | Capture dialog. Enter saves; `⌘Enter` inserts a line break. |
 | Right `⌘` tap | `quicknote.sh` | Still a normal modifier when held. |
+
+`⌘Enter` is a third Karabiner rule ("Cmd+Return - line break in the quick note
+dialog") — enable it along with the trigger you use. It remaps `⌘Enter` to the
+dialog's native line-break keystroke, `⌥Enter`, and only applies while the
+capture dialog is frontmost.
 
 Both rules are independent — enable only what you want. F3 is Mission
 Control by default; that remains reachable via `Ctrl+↑` or a three-finger swipe.
@@ -109,21 +114,24 @@ Two things to know:
   while keeping it a normal modifier when held is a Karabiner trick most simple
   hotkey apps can't reproduce. A regular key combo (like `F3` or `⌥Space`) works
   anywhere and covers the main use case.
+- **So is the `⌘Enter` line-break remap.** Without Karabiner, use the dialog's
+  native `⌥Enter` to insert a line break.
 
-### Todo prefix
+### Todo and Link prefixes
 
-Start a note with `todo` (case-insensitive, optional colon) to tag the Notion
-row with the `Todo` label. The prefix is stripped from the note text; the
-local file line is marked `TODO:` instead.
+Start a note with `todo` or `link` (case-insensitive, optional colon) to tag
+the Notion row with the matching label. The prefix is stripped from the note
+text; the local file line is marked `TODO:` / `LINK:` instead.
 
 ```
-todo buy milk    →  Note: "buy milk", Label: Todo
-Todo: call Sam   →  Note: "call Sam", Label: Todo
+todo buy milk         →  Note: "buy milk", Label: Todo
+Todo: call Sam        →  Note: "call Sam", Label: Todo
+link https://a.co/x   →  Note: "https://a.co/x", Label: Link
 ```
 
-Requires a `Label` select property on the database (the `Todo` option is
-created automatically on first use) — without it, Notion rejects the request
-and the note is saved locally only.
+Requires a `Label` select property on the database (the `Todo` and `Link`
+options are created automatically on first use) — without it, Notion rejects
+the request and the note is saved locally only.
 
 ## Design decisions
 
@@ -171,16 +179,20 @@ and read poorly in a table view. The title stays empty. Notion mandates exactly
 one title property and won't let you hide it in a table view, so expect a thin
 "Untitled" gutter column — drag it narrow.
 
-**Single-line dialog by design.** Enter saves rather than inserting a newline.
-That's what makes capture fast.
+**Enter saves; `⌘Enter` (or `⌥Enter`) inserts a line break.** Saving on
+Enter is what makes capture fast, but the field still takes multi-line notes.
+`⌥Enter` is the dialog's native line-break keystroke and works everywhere;
+`⌘Enter` comes from the Karabiner rule. Pasting text that contains line breaks
+also works. In the local file, continuation lines are indented under the
+note's list item.
 
 **Absolute paths everywhere.** Karabiner runs shell commands with a minimal
 `PATH` and does not expand `~`, which is why `install.sh` substitutes them
 rather than shipping a ready-made JSON.
 
 **JSON escaping is done inline, not with `jq`.** Keeps the dependency list at
-zero. A single-line dialog can't produce newlines or control characters, so
-backslash and double-quote are the only cases that matter.
+zero. The dialog can only produce a handful of cases — backslash, double-quote,
+newlines, and tabs — so those are the ones escaped.
 
 ## Configuration
 

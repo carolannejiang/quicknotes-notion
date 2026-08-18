@@ -1,10 +1,13 @@
 #!/bin/bash
 #
-# quicknote.sh — single-line capture
+# quicknote.sh — quick capture
 #
 # Pops a dialog, appends the note to a local Markdown file, then pushes a row
 # to a Notion database. The local write happens FIRST so a network failure or
 # bad token can never lose a note.
+#
+# Return saves; Cmd+Return (via the Karabiner rule) or Option+Return (native)
+# inserts a line break. Pasted multi-line text works too.
 
 set -uo pipefail
 
@@ -29,29 +32,47 @@ STATUS=$?
 # Saved but empty
 [ -z "$TEXT" ] && exit 0
 
-# A leading "todo" ("todo buy milk", "Todo: buy milk") sets the Label
-# property to Todo on the Notion row and is stripped from the note text.
-TODO=false
+# Line breaks arrive as CR, LF, or CRLF depending on how they were typed or
+# pasted; normalize them all to LF before anything looks at the text.
+TEXT=${TEXT//$'\r\n'/$'\n'}
+TEXT=${TEXT//$'\r'/$'\n'}
+
+# A leading "todo" ("todo buy milk", "Todo: buy milk") or "link"
+# ("link https://…") sets the Label property on the Notion row and is
+# stripped from the note text.
+LABEL=""
 if [[ $TEXT =~ ^[Tt][Oo][Dd][Oo]:?[[:space:]]+(.*)$ ]]; then
-  TODO=true
+  LABEL="Todo"
   TEXT=${BASH_REMATCH[1]}
-  [ -z "$TEXT" ] && exit 0
+elif [[ $TEXT =~ ^[Ll][Ii][Nn][Kk]:?[[:space:]]+(.*)$ ]]; then
+  LABEL="Link"
+  TEXT=${BASH_REMATCH[1]}
 fi
+[ -z "$TEXT" ] && exit 0
 
 # --- Local copy first -------------------------------------------------------
 mkdir -p "$(dirname "$NOTE_FILE")"
 MARKER=""
-[ "$TODO" = true ] && MARKER="TODO: "
-printf -- '- [%s] %s%s\n' "$(date '+%Y-%m-%d %H:%M')" "$MARKER" "$TEXT" >> "$NOTE_FILE"
+case "$LABEL" in
+  Todo) MARKER="TODO: " ;;
+  Link) MARKER="LINK: " ;;
+esac
+# Continuation lines are indented so the file stays one list item per note.
+printf -- '- [%s] %s%s\n' "$(date '+%Y-%m-%d %H:%M')" "$MARKER" "$TEXT" \
+  | sed '2,$s/^/  /' >> "$NOTE_FILE"
 
 # --- Notion -----------------------------------------------------------------
-# Minimal JSON escaping. A single-line dialog cannot produce newlines or
-# control characters, so backslash and double-quote are the only cases.
+# Minimal JSON escaping: backslash, double-quote, and the control characters
+# the dialog can actually produce (newlines via Option+Return or paste, tabs
+# via paste). Escaping newlines also keeps each body on a single line, which
+# the queue format depends on.
 ESC=${TEXT//\\/\\\\}
 ESC=${ESC//\"/\\\"}
+ESC=${ESC//$'\n'/\\n}
+ESC=${ESC//$'\t'/\\t}
 
 PROPS="\"Note\":{\"rich_text\":[{\"text\":{\"content\":\"$ESC\"}}]}"
-[ "$TODO" = true ] && PROPS="$PROPS,\"Label\":{\"select\":{\"name\":\"Todo\"}}"
+[ -n "$LABEL" ] && PROPS="$PROPS,\"Label\":{\"select\":{\"name\":\"$LABEL\"}}"
 
 BODY="{\"parent\":{\"database_id\":\"$NOTION_DB\"},\"properties\":{$PROPS}}"
 

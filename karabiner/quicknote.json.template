@@ -2,12 +2,33 @@
   "title": "Quick note",
   "rules": [
     {
-      "description": "F3 - quick note (single line)",
+      "description": "F3 - quick note",
       "manipulators": [
         {
           "type": "basic",
           "from": { "key_code": "f3" },
           "to": [{ "shell_command": "__BIN__/quicknote.sh" }]
+        }
+      ]
+    },
+    {
+      "description": "Cmd+Return - line break in the quick note dialog",
+      "manipulators": [
+        {
+          "type": "basic",
+          "from": {
+            "key_code": "return_or_enter",
+            "modifiers": { "mandatory": ["command"], "optional": ["caps_lock"] }
+          },
+          "to": [
+            { "key_code": "return_or_enter", "modifiers": ["option"] }
+          ],
+          "conditions": [
+            {
+              "type": "frontmost_application_if",
+              "bundle_identifiers": ["^com\\.apple\\.systemevents$"]
+            }
+          ]
         }
       ]
     },
