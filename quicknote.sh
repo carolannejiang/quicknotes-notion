@@ -37,15 +37,18 @@ STATUS=$?
 TEXT=${TEXT//$'\r\n'/$'\n'}
 TEXT=${TEXT//$'\r'/$'\n'}
 
-# A leading "todo" ("todo buy milk", "Todo: buy milk") or "link"
-# ("link https://…") sets the Label property on the Notion row and is
-# stripped from the note text.
+# A leading "todo" ("todo buy milk", "Todo: buy milk"), "link"
+# ("link https://…"), or "anki" ("anki capital of France") sets the Label
+# property on the Notion row and is stripped from the note text.
 LABEL=""
 if [[ $TEXT =~ ^[Tt][Oo][Dd][Oo]:?[[:space:]]+(.*)$ ]]; then
   LABEL="Todo"
   TEXT=${BASH_REMATCH[1]}
 elif [[ $TEXT =~ ^[Ll][Ii][Nn][Kk]:?[[:space:]]+(.*)$ ]]; then
   LABEL="Link"
+  TEXT=${BASH_REMATCH[1]}
+elif [[ $TEXT =~ ^[Aa][Nn][Kk][Ii]:?[[:space:]]+(.*)$ ]]; then
+  LABEL="Anki"
   TEXT=${BASH_REMATCH[1]}
 fi
 [ -z "$TEXT" ] && exit 0
@@ -56,6 +59,7 @@ MARKER=""
 case "$LABEL" in
   Todo) MARKER="TODO: " ;;
   Link) MARKER="LINK: " ;;
+  Anki) MARKER="ANKI: " ;;
 esac
 # Continuation lines are indented so the file stays one list item per note.
 printf -- '- [%s] %s%s\n' "$(date '+%Y-%m-%d %H:%M')" "$MARKER" "$TEXT" \

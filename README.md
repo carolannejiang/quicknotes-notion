@@ -52,7 +52,7 @@ absolute paths substituted in, and scaffolds `~/.config/quicknote/env` at mode
    | `Note`     | Text         | Where the note text goes                 |
    | `Captured` | Created time | Auto-stamped; the script sends no date   |
    | `Processed`| Checkbox     | Optional, for triage                     |
-   | `Label`    | Select       | Gets a `Todo`/`Link` tag when a note starts with `todo`/`link` |
+   | `Label`    | Select       | Gets a `Todo`/`Link`/`Anki` tag when a note starts with `todo`/`link`/`anki` |
 
 3. **Connect the integration to the database.** Open it → `⋯` → Connections →
    Connect to → select your integration. **This step is the most common point
@@ -117,21 +117,22 @@ Two things to know:
 - **So is the `⌘Enter` line-break remap.** Without Karabiner, use the dialog's
   native `⌥Enter` to insert a line break.
 
-### Todo and Link prefixes
+### Todo, Link, and Anki prefixes
 
-Start a note with `todo` or `link` (case-insensitive, optional colon) to tag
-the Notion row with the matching label. The prefix is stripped from the note
-text; the local file line is marked `TODO:` / `LINK:` instead.
+Start a note with `todo`, `link`, or `anki` (case-insensitive, optional colon)
+to tag the Notion row with the matching label. The prefix is stripped from the
+note text; the local file line is marked `TODO:` / `LINK:` / `ANKI:` instead.
 
 ```
 todo buy milk         →  Note: "buy milk", Label: Todo
 Todo: call Sam        →  Note: "call Sam", Label: Todo
 link https://a.co/x   →  Note: "https://a.co/x", Label: Link
+anki capital of Peru  →  Note: "capital of Peru", Label: Anki
 ```
 
-Requires a `Label` select property on the database (the `Todo` and `Link`
-options are created automatically on first use) — without it, Notion rejects
-the request and the note is saved locally only.
+Requires a `Label` select property on the database (the `Todo`, `Link`, and
+`Anki` options are created automatically on first use) — without it, Notion
+rejects the request and the note is saved locally only.
 
 ## Design decisions
 
