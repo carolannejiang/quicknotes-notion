@@ -117,6 +117,34 @@ Two things to know:
 - **So is the `⌘Enter` line-break remap.** Without Karabiner, use the dialog's
   native `⌥Enter` to insert a line break.
 
+### Journal prefix
+
+Start a note with `j` (`j had a great walk`, `J: slept badly`) to send it to a
+**journal database** instead of the quick notes one. Each day gets one page in
+that database, created on the first `j` note of the day and titled with the
+date; every later `j` note that day is appended to the same page as a
+paragraph, prefixed with the time you wrote it in bold:
+
+```
+14:03  had a great walk
+21:40  slept badly last night, better tonight
+```
+
+Setup, on top of the steps above:
+
+1. Create (or pick) a database with a `Name` title property and a `Date`
+   property of type Date. The script finds today's page by `Date`, so a page
+   you created by hand for today is used too as long as its `Date` is set.
+2. Connect the integration to that database (`⋯` → Connections), and give
+   the integration the **Read content** capability as well as Insert content
+   at notion.so/profile/integrations — finding today's page is a query, and
+   Notion answers `403 Insufficient permissions` without it.
+3. Add its ID to the config as `NOTION_JOURNAL_DB`.
+
+Journal notes go through the same offline queue as everything else, and are
+written to the page for the day they were *captured*, not the day they finally
+sync. The local file line is marked `JOURNAL:`.
+
 ### Todo, Link, and Anki prefixes
 
 Start a note with `todo`, `link`, or `anki` (case-insensitive, optional colon)
@@ -222,6 +250,7 @@ open ~/Notes
 |---|---|
 | "Saved locally + queued — will retry Notion" | A transient failure (no connectivity, or a Notion `429`/`5xx`); the note is queued in `~/.config/quicknote/queue.jsonl` and retried on the next successful run. |
 | "Saved locally only — Notion rejected the note" | Notion refused the request (not queued). Check `~/.config/quicknote/error.log`. Usually the missing Connections step, a wrong database ID, or a property the request needs that doesn't exist on the database (e.g. `Label`). |
+| `403 restricted_resource` on a `j` note | The integration lacks the **Read content** capability needed to look up today's journal page. |
 | Nothing happens on keypress | Open Karabiner's EventViewer, press the key, confirm the reported `key_code` matches the rule. |
 | Rule missing from Karabiner | Malformed JSON: `python3 -m json.tool ~/.config/karabiner/assets/complex_modifications/quicknote.json` |
 | Script hangs, no prompt returns | The dialog opened behind another window. `Ctrl+C` to escape. |
