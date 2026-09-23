@@ -130,7 +130,8 @@ notion_call() {
 }
 
 # Return (in JOURNAL_PAGE) the ID of the journal page whose Date is $1
-# (YYYY-MM-DD), creating it if there is none. The last lookup is cached in
+# (YYYY-MM-DD), creating it if there is none. The title is a live @date
+# mention (the same thing typing "@today" in Notion inserts), not plain text. The last lookup is cached in
 # $CONFIG_DIR/journal-page as "date<TAB>id" so the usual path is a single
 # request. Same return codes as notion_call.
 journal_page() {
@@ -145,7 +146,7 @@ journal_page() {
   JOURNAL_PAGE=$(printf '%s' "$NOTION_RESP" | /usr/bin/grep -o '"id":"[^"]*"' | /usr/bin/head -1 | /usr/bin/cut -d'"' -f4)
   if [ -z "$JOURNAL_PAGE" ]; then
     notion_call POST pages \
-      "{\"parent\":{\"database_id\":\"$NOTION_JOURNAL_DB\"},\"properties\":{\"Name\":{\"title\":[{\"text\":{\"content\":\"$1\"}}]},\"Date\":{\"date\":{\"start\":\"$1\"}}}}" || return $?
+      "{\"parent\":{\"database_id\":\"$NOTION_JOURNAL_DB\"},\"properties\":{\"Name\":{\"title\":[{\"type\":\"mention\",\"mention\":{\"type\":\"date\",\"date\":{\"start\":\"$1\"}}}]},\"Date\":{\"date\":{\"start\":\"$1\"}}}}" || return $?
     JOURNAL_PAGE=$(printf '%s' "$NOTION_RESP" | /usr/bin/grep -o '"id":"[^"]*"' | /usr/bin/head -1 | /usr/bin/cut -d'"' -f4)
     [ -z "$JOURNAL_PAGE" ] && return 2
   fi

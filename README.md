@@ -121,8 +121,8 @@ Two things to know:
 
 Start a note with `j` (`j had a great walk`, `J: slept badly`) to send it to a
 **journal database** instead of the quick notes one. Each day gets one page in
-that database, created on the first `j` note of the day and titled with the
-date; every later `j` note that day is appended to the same page as a
+that database, created on the first `j` note of the day and titled with a
+live `@date` mention (what typing `@today` in Notion inserts); every later `j` note that day is appended to the same page as a
 paragraph, prefixed with the time you wrote it in bold:
 
 ```
