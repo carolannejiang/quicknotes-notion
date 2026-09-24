@@ -254,6 +254,7 @@ open ~/Notes
 | Nothing happens on keypress | Open Karabiner's EventViewer, press the key, confirm the reported `key_code` matches the rule. |
 | Rule missing from Karabiner | Malformed JSON: `python3 -m json.tool ~/.config/karabiner/assets/complex_modifications/quicknote.json` |
 | Script hangs, no prompt returns | The dialog opened behind another window. `Ctrl+C` to escape. |
+| A long note vanished, not even in `inbox.md` | Versions before 2026-09-24 inherited AppleScript's two-minute dialog timeout; writing for longer than that closed the dialog as if cancelled. Re-run `./install.sh`. |
 | No dialog on first run | macOS automation permission prompt is pending; allow it, then run again. |
 | Notion shows date but no time | Edit the `Captured` property and set a Time format. |
 

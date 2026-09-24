@@ -21,9 +21,15 @@ fi
 # shellcheck source=/dev/null
 source "$CONFIG"
 
+# AppleScript gives a "tell application" command two minutes by default,
+# after which it kills the dialog and reports an error — indistinguishable
+# from Cancel, so a long entry would be silently lost. Allow a day instead.
 TEXT=$(/usr/bin/osascript \
   -e 'tell application "System Events" to activate' \
-  -e 'tell application "System Events" to text returned of (display dialog "Note:" default answer "" with title "Quick capture" buttons {"Cancel","Save"} default button "Save")' \
+  -e 'with timeout of 86400 seconds' \
+  -e 'tell application "System Events" to set r to text returned of (display dialog "Note:" default answer "" with title "Quick capture" buttons {"Cancel","Save"} default button "Save")' \
+  -e 'end timeout' \
+  -e 'r' \
   2>/dev/null)
 STATUS=$?
 
